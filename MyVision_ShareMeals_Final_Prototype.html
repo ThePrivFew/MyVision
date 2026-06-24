@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyVision — Share Meals Prototype (Final)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--red:#C0152B;--navy:#1B2A5E;--navy-dark:#0E1A3D;--bg:#E8ECF2;--white:#FFFFFF;--border:#E2E6ED;--text:#1A1D23;--muted:#8A93A2;--light:#F4F6F9;--green:#16A34A;--green-light:#DCFCE7;--phone-w:340px;--phone-h:620px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 60px;user-select:none}
+header{width:100%;background:var(--navy-dark);border-bottom:3px solid var(--red);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo{font-size:18px;font-weight:700;color:white;letter-spacing:-0.5px}
+.logo span{color:var(--red)}
+.subtitle{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.5px}
+.flow-nav{width:100%;background:var(--navy);padding:0 24px;display:flex;gap:0;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.08)}
+.flow-btn{padding:13px 16px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all 0.2s;font-family:'DM Sans',sans-serif;background:none;border-top:none;border-left:none;border-right:none;display:flex;align-items:center;gap:6px}
+.flow-btn.active{color:white;border-bottom-color:var(--red)}
+.flow-btn:hover{color:white}
+.flow-btn .fn{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.12);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.flow-btn.active .fn{background:var(--red)}
+.flow-meta{text-align:center;padding:18px 16px 4px}
+.flow-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);margin-bottom:6px}
+.flow-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.flow-desc{font-size:12px;color:var(--muted);max-width:320px;margin:0 auto;line-height:1.5}
+.step-indicator{display:flex;align-items:center;gap:6px;padding:14px 0 18px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.3s;cursor:pointer}
+.step-dot.active{width:24px;border-radius:4px;background:var(--red)}
+.step-dot.done{background:var(--navy)}
+.phone{width:var(--phone-w);height:var(--phone-h);background:white;border-radius:44px;box-shadow:0 0 0 2px #1a1d30,0 0 0 5px #0a0b14,0 28px 60px rgba(0,0,0,0.35);overflow:hidden;cursor:pointer;position:relative;transition:transform 0.1s}
+.phone:active{transform:scale(0.985)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;transform:translateX(30px);transition:opacity 0.28s ease,transform 0.28s ease;pointer-events:none}
+.screen.active{opacity:1;transform:translateX(0);pointer-events:all}
+.screen.exit{opacity:0;transform:translateX(-30px)}
+.status-bar{background:var(--navy);padding:10px 20px 6px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.status-bar .time{font-size:13px;font-weight:600;color:white;letter-spacing:-0.3px}
+.status-bar .icons{font-size:11px;color:rgba(255,255,255,0.8);display:flex;gap:5px}
+.nav-bar{background:var(--navy);padding:6px 18px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.nav-bar .back{font-size:13px;color:rgba(255,255,255,0.65);min-width:48px}
+.nav-bar .title{font-size:15px;font-weight:600;color:white;text-align:center;flex:1}
+.nav-bar .action{font-size:12px;color:rgba(255,255,255,0.65);min-width:48px;text-align:right}
+.scroll-content{flex:1;overflow:hidden;padding:14px 16px;display:flex;flex-direction:column}
+.bottom-nav{background:var(--navy);padding:8px 0 10px;display:flex;justify-content:space-around;align-items:center;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08)}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.bn-icon{font-size:17px}
+.bn-label{font-size:9px;color:rgba(255,255,255,0.45)}
+.bn-item.active .bn-label{color:white}
+.bn-fab{width:40px;height:40px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:white;margin-top:-14px;box-shadow:0 3px 10px rgba(192,21,43,0.45);flex:1;flex-shrink:0}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--light);border-radius:10px;padding:9px 12px;margin-bottom:10px;flex-shrink:0}
+.search-bar .si{font-size:13px}
+.search-bar .st{font-size:12px;color:var(--muted)}
+.tab-row{display:flex;border-bottom:1.5px solid var(--border);margin-bottom:10px;flex-shrink:0}
+.tab{flex:1;text-align:center;padding:7px 4px;font-size:10px;font-weight:500;color:var(--muted);position:relative;letter-spacing:0.3px}
+.tab.active{color:var(--red)}
+.tab.active::after{content:'';position:absolute;bottom:-1.5px;left:0;right:0;height:2px;background:var(--red)}
+.meal-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.meal-row .mn{font-size:13px;font-weight:500}
+.meal-row .ms{font-size:10px;color:var(--muted);margin-top:2px}
+.add-btn{width:24px;height:24px;background:var(--red);border-radius:50%;color:white;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.macro-strip{display:flex;gap:8px;padding:8px 0 10px;flex-shrink:0}
+.macro-chip{flex:1;background:var(--light);border-radius:8px;padding:6px 4px;text-align:center}
+.macro-chip .mv{font-size:14px;font-weight:700;color:var(--navy);display:block}
+.macro-chip .ml{font-size:9px;color:var(--muted)}
+.ing-row{padding:7px 0;border-bottom:1px solid var(--border)}
+.ing-row .in{font-size:12px;font-weight:500}
+.ing-row .is{font-size:10px;color:var(--muted)}
+.btn-p{background:var(--red);color:white;border-radius:26px;padding:12px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;text-align:center;width:100%;margin-bottom:7px;flex-shrink:0}
+.btn-p.disabled{opacity:0.35}
+.btn-s{background:white;color:var(--navy);border:1.5px solid var(--navy);border-radius:26px;padding:11px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;text-align:center;width:100%;margin-bottom:7px;flex-shrink:0}
+.btn-g{background:transparent;color:var(--muted);padding:8px;font-size:12px;font-family:'DM Sans',sans-serif;text-align:center;width:100%;flex-shrink:0}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);gap:12px}
+.toggle-info .tl{font-size:13px;font-weight:500}
+.toggle-info .ts{font-size:10px;color:var(--muted);margin-top:2px}
+.toggle{width:40px;height:22px;border-radius:11px;position:relative;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:2px;width:18px;height:18px;background:white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+.toggle.on{background:var(--red)}
+.toggle.on::after{left:calc(100% - 20px)}
+.toggle.off{background:#D1D5DB}
+.toggle.off::after{left:2px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+.settings-row .sr-label{font-size:13px}
+.settings-row .sr-arrow{font-size:12px;color:var(--muted)}
+.section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:10px 0 4px}
+.bubbles{display:flex;gap:10px;padding:8px 0 10px;flex-shrink:0}
+.bubble{display:flex;flex-direction:column;align-items:center;gap:4px}
+.b-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;position:relative}
+.b-avatar.selected{box-shadow:0 0 0 2.5px white,0 0 0 4.5px var(--red)}
+.b-check{position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:var(--green);border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:8px;color:white;font-weight:700}
+.b-name{font-size:9px;color:var(--muted);text-align:center;max-width:44px}
+.b-name.sel{color:var(--red);font-weight:600}
+.r-list-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.rli-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0}
+.rli-info{flex:1}
+.rli-info .rn{font-size:12px;font-weight:500}
+.rli-info .rs{font-size:10px;color:var(--muted)}
+.rli-tick{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);flex-shrink:0}
+.rli-tick.sel{background:var(--red);border-color:var(--red);color:white}
+.notif-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.notif-item.unread{background:#FFF5F5;margin:0 -16px;padding:10px 16px}
+.ni-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ni-text{font-size:12px;color:var(--text);line-height:1.4}
+.ni-text strong{font-weight:600}
+.ni-time{font-size:10px;color:var(--muted);margin-top:3px}
+.unread .ni-text{font-weight:500}
+.shared-banner{background:#FFF0F1;border:1px solid #FECACA;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-shrink:0}
+.sb-avatar{width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0}
+.sb-text{font-size:11px;color:var(--navy)}
+.sb-text strong{color:var(--red)}
+.sb-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.success-banner{background:var(--green-light);border:1px solid #86EFAC;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-shrink:0}
+.success-banner .si{font-size:20px}
+.success-banner .st{font-size:12px;font-weight:600;color:#14532D}
+.success-banner .ss{font-size:10px;color:#16A34A;margin-top:2px}
+.consent-card{background:#FFF8F8;border:1px solid #FECACA;border-radius:10px;padding:12px;margin:8px 0;flex-shrink:0}
+.consent-card .cc-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:5px}
+.consent-card .cc-body{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.cc-buttons{display:flex;gap:8px}
+.cc-yes{flex:1;background:var(--red);color:white;border-radius:20px;padding:8px;font-size:11px;font-weight:600;text-align:center}
+.cc-no{flex:1;background:white;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:8px;font-size:11px;text-align:center}
+.push-mock{background:rgba(20,22,40,0.88);border-radius:14px;padding:12px 14px;margin:10px 0}
+.pm-header{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.pm-app-icon{width:18px;height:18px;background:var(--red);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white}
+.pm-app{font-size:10px;color:rgba(255,255,255,0.5)}
+.pm-time{font-size:10px;color:rgba(255,255,255,0.4);margin-left:auto}
+.pm-title{font-size:13px;font-weight:600;color:white;margin-bottom:3px}
+.pm-body{font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4}
+.lockscreen-bg{flex:1;background:linear-gradient(160deg,#0E1A3D 0%,#1B2A5E 100%);padding:14px 16px;display:flex;flex-direction:column}
+.plan-row{padding:8px 0;border-bottom:1px solid var(--border)}
+.plan-row .pr-title{font-size:12px;font-weight:500;color:var(--navy)}
+.plan-row .pr-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.nav-controls{display:flex;align-items:center;gap:16px;margin-top:20px}
+.nav-btn{width:40px;height:40px;border-radius:50%;background:white;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:var(--navy);transition:all 0.15s;box-shadow:0 2px 6px rgba(0,0,0,0.07)}
+.nav-btn:hover{background:var(--navy);color:white;border-color:var(--navy)}
+.nav-btn:disabled{opacity:0.25;cursor:default;pointer-events:none}
+.step-count-label{font-size:12px;color:var(--muted);min-width:60px;text-align:center}
+.tap-hint{margin-top:14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.tap-icon{width:28px;height:28px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:0.7}}
+</style>
+</head>
+<body>
+
+<header>
+  <div><div class="logo">MY<span>VISION</span></div></div>
+  <div class="subtitle">Share My Foods &amp; Meals · Final Prototype</div>
+</header>
+
+<nav class="flow-nav" id="flowNav"></nav>
+
+<div class="flow-meta">
+  <div class="flow-tag" id="flowTag"></div>
+  <div class="flow-title" id="flowTitle"></div>
+  <div class="flow-desc" id="flowDesc"></div>
+</div>
+
+<div class="step-indicator" id="stepDots"></div>
+<div class="phone" id="phone" onclick="nextStep()"></div>
+
+<div class="nav-controls">
+  <button class="nav-btn" id="prevBtn" onclick="prevStep()">&#8249;</button>
+  <div class="step-count-label" id="stepCount"></div>
+  <button class="nav-btn" id="nextBtn" onclick="nextStep()">&#8250;</button>
+</div>
+<div class="tap-hint"><div class="tap-icon">&#128070;</div><span>Tap phone or use arrows · keys 1 2 3 to switch flows</span></div>
+
+<script>
+const BNM=`<div class="bottom-nav"><div class="bn-item"><div class="bn-icon">⭐</div><div class="bn-label">Goals</div></div><div class="bn-item"><div class="bn-icon">📊</div><div class="bn-label">Activity</div></div><div class="bn-fab">+</div><div class="bn-item active"><div class="bn-icon">🍜</div><div class="bn-label">Meals</div></div><div class="bn-item"><div class="bn-icon">👤</div><div class="bn-label">Profile</div></div></div>`;
+const BNP=`<div class="bottom-nav"><div class="bn-item"><div class="bn-icon">⭐</div><div class="bn-label">Goals</div></div><div class="bn-item"><div class="bn-icon">📊</div><div class="bn-label">Activity</div></div><div class="bn-fab">+</div><div class="bn-item"><div class="bn-icon">🍜</div><div class="bn-label">Meals</div></div><div class="bn-item active"><div class="bn-icon">👤</div><div class="bn-label">Profile</div></div></div>`;
+const BNN=`<div class="bottom-nav"><div class="bn-item"><div class="bn-icon">⭐</div><div class="bn-label">Goals</div></div><div class="bn-item"><div class="bn-icon">📊</div><div class="bn-label">Activity</div></div><div class="bn-fab">+</div><div class="bn-item"><div class="bn-icon">🍜</div><div class="bn-label">Meals</div></div><div class="bn-item"><div class="bn-icon">👤</div><div class="bn-label">Profile</div></div></div>`;
+const SB=t=>`<div class="status-bar"><span class="time">${t}</span><div class="icons"><span>●●●</span></div></div>`;
+const NB=(b,t,a='')=>`<div class="nav-bar"><div class="back">${b}</div><div class="title">${t}</div><div class="action">${a}</div></div>`;
+const MACROS=`<div class="macro-strip"><div class="macro-chip"><span class="mv">95g</span><span class="ml">Carbs</span></div><div class="macro-chip"><span class="mv">40g</span><span class="ml">Protein</span></div><div class="macro-chip"><span class="mv">13g</span><span class="ml">Fats</span></div></div>`;
+const INGS=`<div class="ing-row"><div class="in">Coles Rolled Oats</div><div class="is">45g carbs · 8g protein</div></div><div class="ing-row"><div class="in">Frozen Blueberries</div><div class="is">12g carbs · 0g protein</div></div><div class="ing-row"><div class="in">Vision Protein Powder Vanilla</div><div class="is">28g protein · 2g fats</div></div>`;
+const RLIST=`<div class="r-list-item"><div class="rli-av" style="background:#7C3AED;">NW</div><div class="rli-info"><div class="rn">Nathan Walsh</div><div class="rs">Sylvania</div></div><div class="rli-tick">+</div></div><div class="r-list-item"><div class="rli-av" style="background:#059669;">RC</div><div class="rli-info"><div class="rn">Rebecca Carson</div><div class="rs">Caringbah</div></div><div class="rli-tick">+</div></div><div class="r-list-item"><div class="rli-av" style="background:#B45309;">MK</div><div class="rli-info"><div class="rn">Mike Kendall</div><div class="rs">Sylvania</div></div><div class="rli-tick">+</div></div>`;
+
+const flows = [
+  {
+    tag:'Flow 1 of 4 · Privacy & Consent',
+    title:'Privacy & consent',
+    desc:'Consent at first share — no sign-up interruption',
+    screens:[
+      { html: SB('9:31')+NB('','My Foods & Meals','Edit')+`<div class="scroll-content"><div class="search-bar"><span class="si">🔍</span><span class="st">Search food &amp; meals</span></div><div class="tab-row"><div class="tab">ALL</div><div class="tab active">MY MEALS</div><div class="tab">FOODS</div></div><div style="font-size:10px;color:var(--muted);padding:2px 0 8px;">My meals · 8 items</div><div class="meal-row"><div><div class="mn">Blueberry Smoothie</div><div class="ms">My meal · 40g protein</div></div><div class="add-btn">+</div></div><div class="meal-row"><div><div class="mn">4 Eggs on Toast</div><div class="ms">My meal · 28g protein</div></div><div class="add-btn">+</div></div><div class="meal-row"><div><div class="mn">Almond Milk Latte</div><div class="ms">My food · 4g protein</div></div><div class="add-btn">+</div></div><div class="meal-row"><div><div class="mn">Chicken &amp; Rice</div><div class="ms">My meal · 52g protein</div></div><div class="add-btn">+</div></div></div>`+BNM },
+      { html: SB('9:32')+NB('‹ Meals','Blueberry Smoothie','•••')+`<div class="scroll-content">${MACROS}${INGS}<div style="height:10px;"></div><div class="btn-p">Save This Meal</div><div class="btn-s">Add to Meal Plan</div><div style="background:var(--light);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-top:4px;"><span style="font-size:18px;">📤</span><div><div style="font-size:13px;font-weight:600;color:var(--navy);">Share this meal</div><div style="font-size:10px;color:var(--muted);">Send to a trainer or fellow client</div></div><span style="font-size:14px;color:var(--muted);margin-left:auto;">›</span></div></div>`+BNM },
+      { html: SB('9:32')+NB('✕','Share meal','')+`<div class="scroll-content"><div class="consent-card"><div class="cc-title">Before you share</div><div class="cc-body">Photos you share are saved on MyVision servers so your studio can see them. You can change this any time in Profile → Privacy.</div><div class="cc-buttons"><div class="cc-yes">Got it, continue</div><div class="cc-no">No thanks</div></div></div><div style="font-size:11px;color:var(--muted);text-align:center;padding:8px 0;line-height:1.5;">This message appears once only.<br>Future shares go straight through.</div></div>`+BNM },
+      { html: SB('9:45')+NB('‹ Profile','Privacy','')+`<div class="scroll-content"><div class="section-label">Meal Sharing</div><div class="toggle-row"><div class="toggle-info"><div class="tl">Share meal photos</div><div class="ts">Allow photos to be stored and shared with your studio</div></div><div class="toggle on"></div></div><div style="font-size:11px;color:var(--muted);padding:6px 0 10px;line-height:1.5;">Photos you share are stored on MyVision servers. Turn this off at any time.</div><div class="section-label">Other</div><div class="toggle-row"><div class="toggle-info"><div class="tl">Activity visibility</div><div class="ts">Let your trainer see your food diary</div></div><div class="toggle on"></div></div><div class="toggle-row"><div class="toggle-info"><div class="tl">Progress sharing</div><div class="ts">Share weekly progress with your studio</div></div><div class="toggle off"></div></div></div>`+BNP },
+    ]
+  },
+  {
+    tag:'Flow 2 of 4 · Sender',
+    title:'Share a meal',
+    desc:'My Foods & Meals only — user-created snacks and meals',
+    screens:[
+      { html: SB('10:08')+NB('‹ Meals','Blueberry Smoothie','•••')+`<div class="scroll-content">${MACROS}${INGS}<div style="height:10px;"></div><div class="btn-p">Save This Meal</div><div class="btn-s">Add to Meal Plan</div><div style="background:var(--light);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-top:4px;border:1.5px solid var(--red);"><span style="font-size:18px;">📤</span><div><div style="font-size:13px;font-weight:600;color:var(--red);">Share this meal</div><div style="font-size:10px;color:var(--muted);">Tap to choose who to send it to</div></div><span style="font-size:14px;color:var(--red);margin-left:auto;">›</span></div></div>`+BNM },
+      { html: SB('10:09')+NB('✕','Share meal','<span style="opacity:0.3;font-size:12px;">Share</span>')+`<div class="scroll-content"><div class="search-bar"><span class="si">🔍</span><span class="st">Search by name or studio...</span></div><div class="tab-row"><div class="tab active">RECENT</div><div class="tab" style="font-size:9px;">MY STUDIO</div><div class="tab" style="font-size:9px;">OTHER STUDIOS</div></div><div class="bubbles"><div class="bubble"><div class="b-avatar" style="background:var(--navy);">AS</div><div class="b-name">Andrew S.</div></div><div class="bubble"><div class="b-avatar" style="background:#6D28D9;">DD</div><div class="b-name">David D.</div></div><div class="bubble"><div class="b-avatar" style="background:#065F46;">SC</div><div class="b-name">Sarah C.</div></div></div>${RLIST}<div style="flex:1;"></div><div class="btn-p disabled" style="margin-top:8px;">Select someone to share with</div></div>`+BNM },
+      { html: SB('10:09')+NB('✕','Share meal','<span style="font-weight:600;color:white;font-size:12px;">Share</span>')+`<div class="scroll-content"><div class="search-bar"><span class="si">🔍</span><span class="st">Search by name or studio...</span></div><div class="tab-row"><div class="tab active">RECENT</div><div class="tab" style="font-size:9px;">MY STUDIO</div><div class="tab" style="font-size:9px;">OTHER STUDIOS</div></div><div class="bubbles"><div class="bubble"><div class="b-avatar selected" style="background:var(--red);">AS<div class="b-check">✓</div></div><div class="b-name sel">Andrew S.</div></div><div class="bubble"><div class="b-avatar" style="background:#6D28D9;">DD</div><div class="b-name">David D.</div></div><div class="bubble"><div class="b-avatar" style="background:#065F46;">SC</div><div class="b-name">Sarah C.</div></div></div><div class="r-list-item"><div class="rli-av" style="background:#7C3AED;">NW</div><div class="rli-info"><div class="rn">Nathan Walsh</div><div class="rs">Sylvania</div></div><div class="rli-tick">+</div></div><div class="r-list-item" style="background:#FFF5F5;margin:0 -16px;padding:9px 16px;"><div class="rli-av" style="background:#059669;">RC</div><div class="rli-info"><div class="rn">Rebecca Carson</div><div class="rs">Caringbah</div></div><div class="rli-tick sel">✓</div></div><div class="r-list-item"><div class="rli-av" style="background:#B45309;">MK</div><div class="rli-info"><div class="rn">Mike Kendall</div><div class="rs">Sylvania</div></div><div class="rli-tick">+</div></div><div style="flex:1;"></div><div class="btn-p" style="margin-top:8px;">Share with 2 people →</div></div>`+BNM },
+      { html: SB('10:09')+NB('‹ Meals','Blueberry Smoothie','•••')+`<div class="scroll-content"><div class="success-banner"><div class="si">✅</div><div><div class="st">Meal shared</div><div class="ss">Sent to Andrew S. and Rebecca Carson</div></div></div>${MACROS}${INGS}<div style="height:8px;"></div><div class="btn-p">Save This Meal</div><div class="btn-s">Add to Meal Plan</div></div>`+BNM },
+    ]
+  },
+  {
+    tag:'Flow 3 of 4 · Recipient',
+    title:'Receiving a shared meal',
+    desc:'Deep link from notification directly to the shared meal',
+    screens:[
+      { html: SB('4:26')+`<div class="lockscreen-bg"><div style="text-align:center;padding:16px 0 20px;"><div style="font-size:32px;font-weight:700;color:white;letter-spacing:-1px;">4:26</div><div style="font-size:13px;color:rgba(255,255,255,0.5);">Monday 26 July</div></div><div class="push-mock"><div class="pm-header"><div class="pm-app-icon">MV</div><div class="pm-app">MyVision</div><div class="pm-time">now</div></div><div class="pm-title">David shared a meal with you</div><div class="pm-body">Blueberry Smoothie · 40g protein. Tap to add it to your plan.</div></div><div style="font-size:11px;color:rgba(255,255,255,0.35);text-align:center;margin-top:12px;">Tap notification to open</div></div>` },
+      { html: SB('4:26')+NB('‹','Notifications','Edit')+`<div class="scroll-content"><div style="font-size:10px;color:var(--muted);padding:2px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Today</div><div class="notif-item unread"><div class="ni-icon" style="background:#FEE2E2;">🍜</div><div><div class="ni-text">David shared <strong>Blueberry Smoothie</strong> with you — 40g protein</div><div class="ni-time">4:26 PM · Tap to add to your plan</div></div></div><div class="notif-item unread"><div class="ni-icon" style="background:#FEE2E2;">🍜</div><div><div class="ni-text">Sarah shared <strong>Post-workout Shake</strong> with you</div><div class="ni-time">2:10 PM</div></div></div><div style="font-size:10px;color:var(--muted);padding:10px 0 4px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Earlier</div><div class="notif-item"><div class="ni-icon" style="background:#F3F4F6;">⏰</div><div><div class="ni-text" style="font-weight:400;">Track your food today to stay on target</div><div class="ni-time">8:31 AM</div></div></div><div class="notif-item"><div class="ni-icon" style="background:#DBEAFE;">👤</div><div><div class="ni-text" style="font-weight:400;">Sarah completed a readiness questionnaire</div><div class="ni-time">Jul 23 5:46 PM</div></div></div></div>`+BNN },
+      { html: SB('4:27')+NB('‹ Notifications','Blueberry Smoothie','')+`<div class="scroll-content"><div class="shared-banner"><div class="sb-avatar">DD</div><div><div class="sb-text"><strong>David Drury</strong> shared this with you</div><div class="sb-sub">Today, 4:26 PM · Sylvania Studio</div></div></div>${MACROS}${INGS}<div style="height:8px;"></div><div class="btn-p">Add to Meal Plan</div><div class="btn-s">Save This Meal</div><div class="btn-g">Dismiss</div></div>`+BNM },
+      { html: SB('4:27')+NB('‹','Meal Plan','Edit')+`<div class="scroll-content"><div class="success-banner"><div class="si">✅</div><div><div class="st">Added to your plan</div><div class="ss">Blueberry Smoothie — Monday breakfast</div></div></div><div style="font-size:12px;font-weight:600;color:var(--navy);padding:4px 0 8px;">This week</div><div class="plan-row"><div class="pr-title">Monday — Breakfast</div><div class="pr-sub" style="color:var(--red);font-weight:500;">Blueberry Smoothie · just added · tap to edit</div></div><div class="plan-row"><div class="pr-title">Monday — Lunch</div><div class="pr-sub">Chicken &amp; Rice</div></div><div class="plan-row"><div class="pr-title">Monday — Dinner</div><div class="pr-sub">Cauliflower Fritters</div></div><div class="plan-row"><div class="pr-title">Tuesday — Breakfast</div><div class="pr-sub">4 Eggs on Toast</div></div></div>`+BNM },
+    ]
+  }
+];
+
+// Flow 4: Shared
+flows.push({
+  tag:'Flow 4 of 4 · Shared',
+  title:'Shared',
+  desc:'Find meals shared with you — even if you missed the notification',
+  screens:[
+    { html: SB('10:30')+NB('','My Foods & Meals','Edit')+`<div class="scroll-content"><div class="search-bar"><span class="si">🔍</span><span class="st">Search food &amp; meals</span></div><div class="tab-row"><div class="tab">ALL</div><div class="tab active">MY MEALS</div><div class="tab">FOODS</div><div class="tab" style="color:var(--red);font-weight:600;font-size:9px;position:relative;">SHARED<span style="position:absolute;top:4px;right:2px;width:6px;height:6px;background:var(--red);border-radius:50%;"></span></div></div><div style="font-size:10px;color:var(--muted);padding:2px 0 8px;">My meals · 8 items</div><div class="meal-row"><div><div class="mn">Blueberry Smoothie</div><div class="ms">My meal · 40g protein</div></div><div class="add-btn">+</div></div><div class="meal-row"><div><div class="mn">4 Eggs on Toast</div><div class="ms">My meal · 28g protein</div></div><div class="add-btn">+</div></div><div class="meal-row"><div><div class="mn">Chicken &amp; Rice</div><div class="ms">My meal · 52g protein</div></div><div class="add-btn">+</div></div></div>`+BNM },
+    { html: SB('10:30')+NB('','Shared With Me','Edit')+`<div class="scroll-content"><div class="search-bar"><span class="si">🔍</span><span class="st">Search shared meals</span></div><div class="tab-row"><div class="tab">ALL</div><div class="tab">MY MEALS</div><div class="tab">FOODS</div><div class="tab active" style="font-size:9px;">SHARED</div></div><div style="font-size:10px;color:var(--muted);padding:2px 0 8px;">2 meals shared with you</div><div class="meal-row" style="align-items:flex-start;padding:10px 0;"><div style="flex:1;"><div class="mn">Blueberry Smoothie</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><div style="width:22px;height:22px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0;">DD</div><div style="font-size:10px;color:var(--muted);">David Drury · Today 4:26 PM</div></div></div><div class="add-btn" style="margin-top:2px;">+</div></div><div class="meal-row" style="align-items:flex-start;padding:10px 0;"><div style="flex:1;"><div class="mn">Post-workout Shake</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><div style="width:22px;height:22px;border-radius:50%;background:#065F46;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0;">SC</div><div style="font-size:10px;color:var(--muted);">Sarah Clarke · Today 2:10 PM</div></div></div><div class="add-btn" style="margin-top:2px;">+</div></div></div>`+BNM },
+    { html: SB('10:31')+NB('‹ Shared With Me','Blueberry Smoothie','')+`<div class="scroll-content"><div class="shared-banner"><div class="sb-avatar">DD</div><div><div class="sb-text"><strong>David Drury</strong> shared this with you</div><div class="sb-sub">Today, 4:26 PM · Sylvania Studio</div></div></div>${MACROS}${INGS}<div style="height:8px;"></div><div class="btn-p">Add to Meal Plan</div><div class="btn-s">Save This Meal</div><div class="btn-g">Dismiss</div></div>`+BNM },
+    { html: SB('10:31')+NB('‹','Meal Plan','Edit')+`<div class="scroll-content"><div class="success-banner"><div class="si">✅</div><div><div class="st">Added to your plan</div><div class="ss">Blueberry Smoothie — Monday breakfast</div></div></div><div style="font-size:12px;font-weight:600;color:var(--navy);padding:4px 0 8px;">This week</div><div class="plan-row"><div class="pr-title">Monday — Breakfast</div><div class="pr-sub" style="color:var(--red);font-weight:500;">Blueberry Smoothie · just added · tap to edit</div></div><div class="plan-row"><div class="pr-title">Monday — Lunch</div><div class="pr-sub">Chicken &amp; Rice</div></div><div class="plan-row"><div class="pr-title">Monday — Dinner</div><div class="pr-sub">Cauliflower Fritters</div></div><div class="plan-row"><div class="pr-title">Tuesday — Breakfast</div><div class="pr-sub">4 Eggs on Toast</div></div></div>`+BNM },
+  ]
+});
+
+let cf=0,cs=0;
+function buildNav(){document.getElementById('flowNav').innerHTML=flows.map((f,i)=>`<button class="flow-btn${i===0?' active':''}" onclick="switchFlow(${i},this)"><span class="fn">${i+1}</span>${f.title}</button>`).join('')}
+function updateMeta(){const f=flows[cf];document.getElementById('flowTag').textContent=f.tag;document.getElementById('flowTitle').textContent=f.title;document.getElementById('flowDesc').textContent=f.desc}
+function renderDots(){const f=flows[cf];document.getElementById('stepDots').innerHTML=f.screens.map((_,i)=>`<div class="step-dot${i===cs?' active':i<cs?' done':''}" onclick="event.stopPropagation();goTo(${i})"></div>`).join('');document.getElementById('stepCount').textContent=`${cs+1} of ${f.screens.length}`;document.getElementById('prevBtn').disabled=cs===0;document.getElementById('nextBtn').disabled=cs===f.screens.length-1}
+function renderScreen(idx,dir){const phone=document.getElementById('phone');const ex=phone.querySelector('.screen.active');if(ex){ex.classList.add('exit');ex.classList.remove('active');setTimeout(()=>ex.remove(),280)}const el=document.createElement('div');el.className='screen';el.style.transform=`translateX(${dir==='forward'?30:-30}px)`;el.innerHTML=flows[cf].screens[idx].html;phone.appendChild(el);requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.add('active');el.style.transform=''}));renderDots()}
+function goTo(i){if(i===cs)return;const dir=i>cs?'forward':'back';cs=i;renderScreen(cs,dir)}
+function nextStep(){if(cs<flows[cf].screens.length-1){cs++;renderScreen(cs,'forward')}}
+function prevStep(){if(cs>0){cs--;renderScreen(cs,'back')}}
+function switchFlow(idx,btn){document.querySelectorAll('.flow-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');cf=idx;cs=0;updateMeta();document.getElementById('phone').innerHTML='';renderScreen(0,'forward')}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')nextStep();if(e.key==='ArrowLeft'||e.key==='ArrowUp')prevStep();const n=parseInt(e.key);if(n>=1&&n<=4)switchFlow(n-1,document.querySelectorAll('.flow-btn')[n-1])});
+buildNav();updateMeta();renderScreen(0,'forward');
+</script>
+</body>
+</html>
